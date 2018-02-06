@@ -471,4 +471,133 @@ Since we're using the post method, we need to mae change to router (get --> post
 
 RIght now localhost:4567/named-cat is not accessible because of the post method. We can access this page only after we make a post request directed to this route. Whenever we want to get to named-cat, we need to do it through post request.
 
-//// because of the fact that the name was provided in the form, there is no query string. 
+//// because of the fact that the name was provided in the form, there is no query string.
+
+If we would like to print the name, we would have to use a form for name and change `<input type="text" name="name">` into `<input type="text" name="age">`.
+
+```html
+<form action="/named-cat" method="post">
+  <input type="text" name="age">
+  <input type="submit" value="Submit">
+</form>
+```
+Then this age provided in the form will be used in ruby here: `@age = params[:age]`.
+```ruby
+post '/named-cat' do # the same as in random cat, but with params
+  p params
+  @name = params[:name] # we still need to set params to @name, as we use @name in  index.erb file.
+  @age = params[:age]
+  @color =params[:color]
+  erb(:index)
+end
+```
+## ex. 15 Chrome DevTools
+## ex. 16 Testing with an Automated Browser and Capybara
+
+#### Selecting the Driver
+
+By default, Capybara uses the `:rack_test` driver, which is fast but limited: it does not support JavaScript, nor is it able to access HTTP resources outside of your Rack application, such as remote APIs and OAuth services. To get around these limitations, you can set up a different default driver for your features. For example if you'd prefer to run everything in Selenium, you could do in pry:
+```plain
+Capybara.default_driver = :selenium
+However, if you are using RSpec or Cucumber, you may instead want to consider leaving the faster `:rack_test` as the default_driver, and marking only those tests that require a JavaScript-capable driver using js: true or @javascript, respectively. By default, JavaScript tests are run using the :selenium driver. You can change this by setting `Capybara.javascript_driver`.
+
+You can also change the driver temporarily (typically in the Before/setup and After/teardown blocks):
+```plain
+Capybara.current_driver = :webkit
+```
+temporarily select different driver
+tests here
+```plain
+Capybara.use_default_driver
+```       
+switch back to default driver
+Note: switching the driver creates a new session, so you may not be able to switch in the middle of a test.
+
+#### Capybara Cheat Sheet
+Navigation
+```plain
+visit('/projects')
+visit(post_comments_path(post))
+```
+Clicking links and buttons
+```plain
+click_link('id-of-link')
+click_link('Link Text')
+click_button('Save')
+click('Link Text') # Click either a link or a button
+click('Button Value')
+```
+Interacting with forms
+```plain
+fill_in('First Name', with: 'John')
+fill_in('Password', with: 'Seekrit')
+fill_in('Description', with: 'Really Long Text…')
+choose('A Radio Button')
+check('A Checkbox')
+uncheck('A Checkbox')
+attach_file('Image', '/path/to/image.jpg')
+select('Option', from: 'Select Box')
+```
+Scoping
+```plain
+within("//li[@id='employee']") do
+  fill_in 'Name', with: 'Jimmy'
+end
+within(:css, "li#employee") do
+  fill_in 'Name', with: 'Jimmy'
+end
+within_fieldset('Employee') do
+  fill_in 'Name', with: 'Jimmy'
+end
+within_table('Employee') do
+  fill_in 'Name', with: 'Jimmy'
+end
+```
+Querying
+```plain
+expect(page).to have_xpath?('//table/tr')
+expect(page).to have_css?('table tr.foo')
+expect(page).to have_content?('foo')
+expect(page).to have_xpath('//table/tr')
+expect(page).to have_css('table tr.foo')
+expect(page).to have_content('foo')
+expect(page).to_not have_content('foo')
+find_field('First Name').value
+find_link('Hello').visible?
+find_button('Send').click
+find('//table/tr').click
+locate("//*[@id='overlay'").find("//h1").click
+all('a').each { |a| a[:href] }
+```
+Scripting
+```plain
+result = expect(page).to evaluate_script('4 + 4');
+```
+Asynchronous JavaScript
+```plain
+click_link('foo')
+click_link('bar')
+expect(page).to have_content('baz')
+expect(page).to_not have_xpath('//a')
+expect(page).to have_no_xpath('//a')
+```
+XPATH and css
+```plain
+within(:css, 'ul li') { ... }
+find(:css, 'ul li').text
+locate(:css, 'input#name').value
+Capybara.default_selector = :css
+within('ul li') { ... }
+find('ul li').text
+locate('input#name').value
+```
+
+`click_button 'Click me!'` - click button with this name
+`check('first')` - tick box whose name is first
+```plain
+within('section .fourth') do
+  click_button "We're the same...but in different sections"
+end
+```
+`click_button('left')` - left is ID of button
+`find('button.left').click` - find a button with a class left and click it.

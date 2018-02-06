@@ -16,7 +16,7 @@ post '/named-cat' do # the same as in random cat, but with params
   p params
   @name = params[:name] # we still need to set params to @name, as we use @name in  index.erb file.
   @age = params[:age]
-  @color =params[:color]
+  @color = params[:color]
   erb(:index)
 end
 # http://localhost:4567/named-cat?blah=James - we set @name to James.
