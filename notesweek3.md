@@ -151,16 +151,17 @@ These request verbs are:
 
 ```plain
 GET: fetch an existing resource. The URL contains all the necessary information the server needs to locate and return the resource.
-POST: create a new resource. POST requests usually carry a payload that specifies the data for the new resource.
+POST: create a new resource (send new information and make changes). POST requests usually carry a payload that specifies the data for the new resource.
 PUT: update an existing resource. The payload may contain the updated data for the resource.
-DELETE: delete an existing resource.
+PATCH: update an existing resource.
+DELETE: delete an existing resource (delete record that you've made in the past).
 The above four verbs are the most popular, and most tools and frameworks explicitly expose these request verbs. PUT and DELETE are sometimes considered specialized versions of the POST verb, and they may be packaged as POST requests with the payload containing the exact action: create, update or delete.
 ```
 There are some lesser used verbs that HTTP also supports:
 ```plain
-HEAD: this is similar to GET, but without the message body. It's used to retrieve the server headers for a particular resource, generally to check if the resource has changed, via timestamps.
+HEAD: this is similar to GET, but without the message body. It's used to retrieve the server headers for a particular resource, generally to check if the resource has changed, via timestamps - only header, not interested in body (when interested only in server)
 TRACE: used to retrieve the hops that a request takes to round trip from the server. Each intermediate proxy or gateway would inject its IP or DNS name into the Via header field. This can be used for diagnostic purposes.
-OPTIONS: used to retrieve the server capabilities. On the client-side, it can be used to modify the request based on what the server can support.
+OPTIONS: used to retrieve the server capabilities (all available request types). On the client-side, it can be used to modify the request based on what the server can support.
 ```
 http -f POST https://getpostworkout.herokuapp.com/ name=Just
 -f - saves Just to a website
@@ -405,3 +406,69 @@ To do that, we need to change index.erb file in the following way:
 According to this file, if age is provided, it will be displayed, otherwise not.
 
  Because we don't want to output the results of the if statement, that is, line 2 into the HTML, we don't put = after the opening tag or the closing tag.
+
+ ## ex. 13 Using forms
+
+ ```html
+ <div style='border: 3px dashed red'>
+    <img src='http://bit.ly/1eze8aE' style='margin-left: auto; margin-right: auto; display: block;'>
+    <form action="/named-cat">
+      <input type="text" name="name">
+      <input type="submit" value="Submit">
+    </form>
+  </div>
+```
+
+the `<input type="text" name="name">` fills the query string in URL.
+
+```html
+<div style='border: 3px dashed red'>
+   <img src='http://bit.ly/1eze8aE' style='margin-left: auto; margin-right: auto; display: block;'>
+ </div>
+<% if !@name %>
+ <form action="/named-cat">
+   <input type="text" name="name">
+   <input type="submit" value="Submit">
+ </form>
+<% end %>
+```
+Divide the code into two sections - image and form. The form will be displayed only in case the user doesn't put the name in the URL.
+
+// not rly posting anything, just filling the query in URL.
+
+## ex. 14 POSTed params
+```plain
+127.0.0.1 - - [06/Feb/2018:11:45:43 +0000] "GET /named-cat?name=KOT&age=5&color=blue HTTP/1.1" 200 209 0.0217
+```
+example of log in GET.
+```html
+<form action="/named-cat">
+  <input type="text" name="age">
+  <input type="submit" value="Submit">
+</form>
+```
+
+whatever we post in the form, it will be redirected to the /named-cat route.
+
+```html
+<form action="/named-cat" method="post">
+  <input type="text" name="age">
+  <input type="submit" value="Submit">
+</form>
+```
+By default, forms send the GET request. In order to change it to POST request, we need to change the method to post.  
+
+```ruby
+post '/named-cat' do # the same as in random cat, but with params
+  p params
+  @name = params[:name] # we still need to set params to @name, as we use @name in  index.erb file.
+  @age = params[:age]
+  @color =params[:color]
+  erb(:index)
+end
+```
+Since we're using the post method, we need to mae change to router (get --> post)
+
+RIght now localhost:4567/named-cat is not accessible because of the post method. We can access this page only after we make a post request directed to this route. Whenever we want to get to named-cat, we need to do it through post request.
+
+//// because of the fact that the name was provided in the form, there is no query string. 

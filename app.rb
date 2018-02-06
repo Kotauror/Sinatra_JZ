@@ -12,7 +12,8 @@ get '/' do
    "Hello everyone" "blaaaaah"
 end
 
-get '/named-cat' do # the same as in random cat, but with params
+post '/named-cat' do # the same as in random cat, but with params
+  p params
   @name = params[:name] # we still need to set params to @name, as we use @name in  index.erb file.
   @age = params[:age]
   @color =params[:color]
@@ -29,4 +30,8 @@ end
 get '/funny-cat' do
   @name = ["jim", "joe", "jane"].sample
   erb(:funny_cat)
+end
+
+get '/cat_form' do
+  erb(:cat_form)
 end
